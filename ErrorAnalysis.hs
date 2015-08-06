@@ -8,6 +8,12 @@ productList,
 Polynomial (Polynomial),
 getCoeff,
 getPow) where
+
+data Polynomial = Polynomial Float [Float] deriving (Eq, Show)
+
+getCoeff (Polynomial a _) = a
+getPow (Polynomial _ b) = b
+
 --All functions compute the FRACTIONAL Error
 --Takes the following arguments:
 -- Coefficient of the products [List of pruducts (their powers)] [List of sums (their coefficients)] 
@@ -17,32 +23,26 @@ getPow) where
 --In x^3 * y^2 * z this function takes in a list of the values of
 -- [x^3, y^2, z] and the second argument is [error in x^3, error in y^2, error in z]
 
-data Polynomial = Polynomial Float [Float] deriving (Eq, Show)
-
-getCoeff (Polynomial a _) = a
-getPow (Polynomial _ b) = b
-
 multError :: (Floating a) => [a] -> [a] -> a
 multError products errors =  sqrt $ sum . map (**2) $ zipWith (/) errors products
 
 exponentError :: (Fractional a) => a -> a -> a -> a
 exponentError base power err = (abs power) * err / (abs base)
 
---Takes the following arguments:
--- Coefficient of the products [List of pruducts (their powers)] [List of sums (their coefficients)] 
---[List of Values]
---put negative exponents for division, change the Integral requirement to allow square roots and such
-{-experimentalValue :: (Num a, Integral b) => a -> [b] -> [a] -> [a] -> a
-experimentalValue coeff powers sums values = 
-    (coeff * product (zipWith (^) values powers)) + (sum $ zipWith (*) sums values)
--}
+--Takes in a Polynomial and the values of the variables and returns the result
+--Ex. for 3x^3 * y^4 at x = 2, y = 4 it would take in Polynomial 3 [3,4] and [2,4]
+--And return 3(2^3)*(4^4) as a float
+-- Make sure that decimals (for square roots) are expressed as 0.05 not .05
 experimentalValue :: Polynomial -> [Float] -> Float
 experimentalValue polynomial values =
     getCoeff polynomial * (product (zipWith (**) values (getPow polynomial)))
 
 --Makes a list of the products
-productList :: (Num c, Integral b) => [b] -> [c] -> [c]
-productList powers values = zipWith (^) values powers
+productList :: [Float] -> [Float] -> [Float]
+productList powers values = zipWith (**) values powers
+
+{-productList :: Polynomial -> [Float] -> [Float]
+productList polynomial values = zipWith (**) (getPow polynomial) values-}
 
 --Makes a list of the sums
 sumList sums values = zipWith (*) sums values
@@ -64,17 +64,15 @@ productErrorList _ [] _ = error "Mismatch"
 productErrorList _ _ [] = error "Mismatch"
 productErrorList (p:ps) (v:vs) (e:es) = exponentError v p e : productErrorList ps vs es
 
-errorInProducts :: (Integral a, Floating a) => [a] -> [a] -> [a] -> a
+errorInProducts :: [Float] -> [Float] -> [Float] -> Float
 errorInProducts powers values errors = multError (productList powers values) (productErrorList powers values errors)
 
+{-
+errorInProducts :: Polynomial -> [Float] -> [Float] -> [Float]
+errorInProducts polynomial values errors =
+    multError (productList polynomial values) (productErrorList (getPow polynomial) values errors)
 
-{-errorInSums :: (Integral a, Floating a) => [a] -> [a] -> [a] -> a
-errorInSums sums values errors = sumList sums values-}
-
---c1 + c2x + c3x^2 + c4x^3 + ... [c1,c2,c3,c4..]
-{-data Polynomial = Polynomial [Int] deriving (Eq)
-
-add a b = zipWith (+) a b-}
+-}
 
 {-Want to input: 3(x^2)(y^3) + 3xz^2 + 4yx + 4x with errors in x, y, z
 Break this into small chunks which will be added
@@ -88,10 +86,6 @@ Output: The error range
 
 Functions:
 errorInProducts - calling multError with the arguments
-
-
-
-
 
 -}
 
