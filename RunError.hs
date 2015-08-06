@@ -1,5 +1,3 @@
-import System.Environment
-import Data.List
 import ErrorAnalysis as E
 
 main = do
