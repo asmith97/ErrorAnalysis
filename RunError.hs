@@ -12,17 +12,22 @@ main = do
     let parsedExpression = parseExpression expressionString
     let values = read valueString :: [Float]
     let errors = read errorString :: [Float]
+
     --need to make the values a list of a list of floats so that they can be zipped with the list of polynomials
     let expValue = zipWith E.experimentalValue parsedExpression (repeat values)
-    putStr "The experimental value is: "
-    print $ sum expValue
-    print parsedExpression
 
-    --this leads to a mismatch error - not sure why
+    print $ "The experimental value is: " ++ show (sum expValue)
+
     let errorList = zipWith3 E.errorInProducts (map E.getPow parsedExpression) (repeat values) (repeat errors)
-    print $ E.errorInProducts (E.getPow $ parsedExpression !! 0) values errors
-    print $ E.errorInProducts (E.getPow $ parsedExpression !! 1) values errors
-    print errorList
+
+    let totalFractionalError = sum errorList
+    print $ "The fractional uncertainty is: " ++ (show totalFractionalError)
+
+    let totalError = totalFractionalError * (sum expValue)
+    print $ "The total error is: " ++ (show totalError)
+
+    print $ "Accounting for uncertainty the value should lie between: " ++ show [(sum expValue)-totalError,(sum expValue)+totalError]
+
 
 --takes from the string until getting to the first opening bracket
 getCoefficient :: String -> Float

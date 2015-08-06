@@ -65,6 +65,7 @@ productErrorList _ _ [] = error "Mismatch"
 productErrorList (p:ps) (v:vs) (e:es) = exponentError v p e : productErrorList ps vs es
 
 errorInProducts :: [Float] -> [Float] -> [Float] -> Float
+errorInProducts [] values errors = 0
 errorInProducts powers values errors = multError (productList powers values) (productErrorList powers values errors)
 
 {-
