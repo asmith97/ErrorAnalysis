@@ -4,7 +4,10 @@ exponentError,
 experimentalValue,
 productErrorList,
 errorInProducts,
-productList) where
+productList,
+Polynomial (Polynomial),
+getCoeff,
+getPow) where
 --All functions compute the FRACTIONAL Error
 --Takes the following arguments:
 -- Coefficient of the products [List of pruducts (their powers)] [List of sums (their coefficients)] 
@@ -13,8 +16,14 @@ productList) where
 --For example:
 --In x^3 * y^2 * z this function takes in a list of the values of
 -- [x^3, y^2, z] and the second argument is [error in x^3, error in y^2, error in z]
+
+data Polynomial = Polynomial Float [Float] deriving (Eq, Show)
+
+getCoeff (Polynomial a _) = a
+getPow (Polynomial _ b) = b
+
 multError :: (Floating a) => [a] -> [a] -> a
-multError products errors =  sqrt $ sum . map (^2) $ zipWith (/) errors products
+multError products errors =  sqrt $ sum . map (**2) $ zipWith (/) errors products
 
 exponentError :: (Fractional a) => a -> a -> a -> a
 exponentError base power err = (abs power) * err / (abs base)
@@ -23,9 +32,13 @@ exponentError base power err = (abs power) * err / (abs base)
 -- Coefficient of the products [List of pruducts (their powers)] [List of sums (their coefficients)] 
 --[List of Values]
 --put negative exponents for division, change the Integral requirement to allow square roots and such
-experimentalValue :: (Num a, Integral b) => a -> [b] -> [a] -> [a] -> a
+{-experimentalValue :: (Num a, Integral b) => a -> [b] -> [a] -> [a] -> a
 experimentalValue coeff powers sums values = 
-	(coeff * product (zipWith (^) values powers)) + (sum $ zipWith (*) sums values)
+    (coeff * product (zipWith (^) values powers)) + (sum $ zipWith (*) sums values)
+-}
+experimentalValue :: Polynomial -> [Float] -> Float
+experimentalValue polynomial values =
+    getCoeff polynomial * (product (zipWith (**) values (getPow polynomial)))
 
 --Makes a list of the products
 productList :: (Num c, Integral b) => [b] -> [c] -> [c]
