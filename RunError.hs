@@ -14,17 +14,17 @@ main = do
     --need to make the values a list of a list of floats so that they can be zipped with the list of polynomials
     let expValue = zipWith E.experimentalValue parsedExpression (repeat values)
 
-    print $ "The experimental value is: " ++ show (sum expValue)
+    putStrLn $ "The experimental value is: " ++ show (sum expValue)
 
     let errorList = zipWith3 E.errorInProducts (map E.getPow parsedExpression) (repeat values) (repeat errors)
 
     let totalFractionalError = sum errorList
-    print $ "The fractional uncertainty is: " ++ (show totalFractionalError)
+    putStrLn $ "The fractional uncertainty is: " ++ (show totalFractionalError)
 
     let totalError = totalFractionalError * (sum expValue)
-    print $ "The total error is: " ++ (show totalError)
+    putStrLn $ "The total error is: " ++ (show totalError)
 
-    print $ "Accounting for uncertainty the value should lie between: " ++ show [(sum expValue)-totalError,(sum expValue)+totalError]
+    putStrLn $ "Accounting for uncertainty the value should lie between: " ++ show [(sum expValue)-totalError,(sum expValue)+totalError]
 
 
 --takes from the string until getting to the first opening bracket
